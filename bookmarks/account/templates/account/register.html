@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% load form_tags %}
+
+{% block title %}Register{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-center align-items-center" style="min-height: 90vh;">
+  <div>
+    <div class="card shadow-sm border rounded-1 p-4" style="width: 340px;">
+      <div class="text-center mb-3">
+        <h1 style="font-family: 'Billabong', cursive; font-size: 42px;">Bookmarks</h1>
+        <p class="text-muted small">Create an account</p>
+      </div>
+
+      <form method="post">
+        {% csrf_token %}
+        {{ user_form.username|add_attrs:"class=form-control form-control-sm,placeholder=Username" }}
+        <div class="mb-2 mt-2">
+          {{ user_form.first_name|add_attrs:"class=form-control form-control-sm,placeholder=First Name" }}
+        </div>
+        <div class="mb-2">
+          {{ user_form.email|add_attrs:"class=form-control form-control-sm,placeholder=Email" }}
+        </div>
+        <div class="mb-2">
+          {{ user_form.password|add_attrs:"class=form-control form-control-sm,placeholder=Password" }}
+        </div>
+        <div class="mb-2">
+          {{ user_form.password2|add_attrs:"class=form-control form-control-sm,placeholder=Repeat Password" }}
+        </div>
+        <div class="d-grid mt-3">
+          <button type="submit" class="btn btn-success btn-sm">Create Account</button>
+        </div>
+      </form>
+
+      <div class="d-flex align-items-center my-3">
+        <hr class="flex-grow-1">
+        <span class="mx-2 text-muted small">OR</span>
+        <hr class="flex-grow-1">
+      </div>
+
+      <div class="text-center mb-2">
+        <a href="#" class="text-primary fw-semibold text-decoration-none">
+          <i class="bi bi-google"></i> Sign up with Google
+        </a>
+      </div>
+      <div class="text-center">
+      <span class="small text-muted">
+        Already have an account?
+        <a href="{% url 'login' %}" class="text-primary text-decoration-none">Log in</a>
+      </span>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

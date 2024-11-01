@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% load form_tags %}
+{% block title %}Login{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-center align-items-center" style="min-height: 90vh;">
+  <div>
+    <div class="card shadow-sm border rounded-1 p-4" style="width: 340px;">
+      <div class="text-center mb-3">
+        <h1 style="font-family: 'Billabong', cursive; font-size: 42px;">Bookmarks</h1>
+      </div>
+
+      <form method="post">
+        {% csrf_token %}
+        <input type="hidden" name="next" value="{{ next }}" />
+        <div class="mb-2">
+          {{ form.username|add_attrs:"class=form-control form-control-sm,placeholder=username or email" }}
+        </div>
+        <div class="mb-2">
+          {{ form.password|add_attrs:"class=form-control form-control-sm,placeholder=Password" }}
+        </div>
+        <div class="d-grid mt-3">
+          <button type="submit" class="btn btn-primary btn-sm">Log in</button>
+        </div>
+      </form>
+
+      <div class="d-flex align-items-center my-3">
+        <hr class="flex-grow-1">
+        <span class="mx-2 text-muted small">OR</span>
+        <hr class="flex-grow-1">
+      </div>
+
+      <div class="text-center mb-2">
+        <a href="{% url "social:begin" "google-oauth2" %}" class="text-primary fw-semibold text-decoration-none">
+          <i class="bi bi-facebook"></i> Sign in with Google
+        </a>
+      </div>
+
+      <div class="text-center mb-2">
+        <a href="#" class="text-primary fw-semibold text-decoration-none">
+          <i class="bi bi-facebook"></i> Log in with Facebook
+        </a>
+      </div>
+
+      <div class="text-center">
+        <a href="{% url "password_reset" %}" class="small text-muted text-decoration-none">Forgot password?</a>
+      </div>
+    </div>
+
+    <div class="card text-center mt-3 p-3 border rounded-1" style="width: 340px;">
+      <span class="small">Don't have an account?
+        <a href="{% url "register" %}" class="text-primary text-decoration-none">Sign up</a>
+      </span>
+    </div>
+  </div>
+</div>
+{% endblock %}
