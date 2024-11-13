@@ -1,0 +1,413 @@
+{% extends "base.html" %}
+{% load form_tags %}
+{% block title %}Edit Your Account{% endblock %}
+
+{% block extra_css %}
+<style>
+  :root {
+    --win11-bg: #f3f3f3;
+    --win11-content: #ffffff;
+    --win11-border: #e5e5e5;
+    --win11-text-primary: #323130;
+    --win11-text-secondary: #605e5c;
+    --win11-accent: #198754;
+    --win11-hover: #f9f9f9;
+    --win11-input-bg: #ffffff;
+    --win11-input-border: #d1d1d1;
+    --win11-input-focus: #198754;
+  }
+
+  .edit-profile-container {
+    background: var(--win11-content);
+    border: 1px solid var(--win11-border);
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    padding: 40px;
+    max-width: 520px;
+    margin: 0 auto;
+  }
+
+  .profile-header {
+    text-align: center;
+    margin-bottom: 32px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid var(--win11-border);
+  }
+
+  .profile-title {
+    font-size: 28px;
+    font-weight: 600;
+    color: var(--win11-text-primary);
+    margin: 0 0 8px 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  }
+
+  .profile-subtitle {
+    font-size: 14px;
+    color: var(--win11-text-secondary);
+    margin: 0;
+  }
+
+  .form-section {
+    margin-bottom: 32px;
+  }
+
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 20px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--win11-border);
+  }
+
+  .section-icon {
+    font-size: 18px;
+    color: var(--win11-accent);
+  }
+
+  .section-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--win11-text-primary);
+    margin: 0;
+  }
+
+  .form-group {
+    margin-bottom: 20px;
+  }
+
+  .form-label {
+    display: block;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--win11-text-primary);
+    margin-bottom: 6px;
+  }
+
+  .form-control {
+    width: 100%;
+    padding: 12px 16px;
+    border: 1px solid var(--win11-input-border);
+    border-radius: 6px;
+    background: var(--win11-input-bg);
+    color: var(--win11-text-primary);
+    font-size: 14px;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    transition: all 0.2s ease;
+    box-sizing: border-box;
+  }
+
+  .form-control:focus {
+    outline: none;
+    border-color: var(--win11-input-focus);
+    box-shadow: 0 0 0 2px rgba(25, 135, 84, 0.1);
+  }
+
+  .form-control:hover {
+    border-color: #b8b8b8;
+  }
+
+  .form-control::placeholder {
+    color: var(--win11-text-secondary);
+  }
+
+  .form-control[type="file"] {
+    padding: 8px 12px;
+  }
+
+  .form-control[type="date"] {
+    padding: 11px 16px;
+  }
+
+  textarea.form-control {
+    min-height: 100px;
+    resize: vertical;
+  }
+
+  .submit-section {
+    margin-top: 40px;
+    padding-top: 24px;
+    border-top: 1px solid var(--win11-border);
+  }
+
+  .btn-primary {
+    background: var(--win11-accent);
+    border: 1px solid var(--win11-accent);
+    color: white;
+    padding: 12px 32px;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    width: 100%;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  }
+
+  .btn-primary:hover {
+    background: #146c43;
+    border-color: #146c43;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(25, 135, 84, 0.2);
+  }
+
+  .btn-primary:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 4px rgba(25, 135, 84, 0.2);
+  }
+
+  .btn-secondary {
+    background: transparent;
+    border: 1px solid var(--win11-border);
+    color: var(--win11-text-primary);
+    padding: 12px 32px;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-decoration: none;
+    display: inline-block;
+    text-align: center;
+    margin-right: 12px;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  }
+
+  .btn-secondary:hover {
+    background: var(--win11-hover);
+    border-color: #b8b8b8;
+    color: var(--win11-text-primary);
+    text-decoration: none;
+  }
+
+  .photo-preview {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid var(--win11-border);
+    margin-bottom: 12px;
+  }
+
+  .photo-upload-section {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .photo-info {
+    flex: 1;
+  }
+
+  .help-text {
+    font-size: 12px;
+    color: var(--win11-text-secondary);
+    margin-top: 4px;
+  }
+
+  .error-message {
+    color: #dc3545;
+    font-size: 12px;
+    margin-top: 4px;
+  }
+
+  .success-message {
+    background: #d1e7dd;
+    border: 1px solid #badbcc;
+    color: #0f5132;
+    padding: 12px 16px;
+    border-radius: 6px;
+    margin-bottom: 24px;
+    font-size: 14px;
+  }
+
+  /* Responsive adjustments */
+  @media (max-width: 768px) {
+    .edit-profile-container {
+      padding: 24px;
+      margin: 16px;
+      border-radius: 8px;
+    }
+
+    .profile-title {
+      font-size: 24px;
+    }
+
+    .photo-upload-section {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+
+    .btn-secondary {
+      margin-right: 0;
+      margin-bottom: 12px;
+      width: 100%;
+    }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+  <div class="edit-profile-container">
+    <!-- Profile Header -->
+    <div class="profile-header">
+      <h1 class="profile-title">Edit your account</h1>
+      <p class="profile-subtitle">Update your personal information and preferences</p>
+    </div>
+
+    <!-- Form Start -->
+    <form method="post" enctype="multipart/form-data" novalidate>
+      {% csrf_token %}
+
+      <!-- Personal Information Section -->
+      <div class="form-section">
+        <div class="section-header">
+          <i class="bi bi-person section-icon"></i>
+          <h2 class="section-title">Personal Information</h2>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="id_first_name">First Name</label>
+          {{ user_form.first_name|add_attrs:"class=form-control" }}
+          {% if user_form.first_name.errors %}
+            <div class="error-message">{{ user_form.first_name.errors.0 }}</div>
+          {% endif %}
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="id_last_name">Last Name</label>
+          {{ user_form.last_name|add_attrs:"class=form-control" }}
+          {% if user_form.last_name.errors %}
+            <div class="error-message">{{ user_form.last_name.errors.0 }}</div>
+          {% endif %}
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="id_email">Email Address</label>
+          {{ user_form.email|add_attrs:"class=form-control" }}
+          {% if user_form.email.errors %}
+            <div class="error-message">{{ user_form.email.errors.0 }}</div>
+          {% endif %}
+          <div class="help-text">This will be used for account notifications</div>
+        </div>
+      </div>
+
+      <!-- Profile Details Section -->
+      <div class="form-section">
+        <div class="section-header">
+          <i class="bi bi-info-circle section-icon"></i>
+          <h2 class="section-title">Profile Details</h2>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="id_date_of_birth">Date of Birth</label>
+          {{ profile_form.date_of_birth|add_attrs:"class=form-control" }}
+          {% if profile_form.date_of_birth.errors %}
+            <div class="error-message">{{ profile_form.date_of_birth.errors.0 }}</div>
+          {% endif %}
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="id_bio">Bio</label>
+          {{ profile_form.bio|add_attrs:"class=form-control" }}
+          {% if profile_form.bio.errors %}
+            <div class="error-message">{{ profile_form.bio.errors.0 }}</div>
+          {% endif %}
+          <div class="help-text">Share a brief description about yourself</div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="id_location">Location</label>
+          {{ profile_form.location|add_attrs:"class=form-control" }}
+          {% if profile_form.location.errors %}
+            <div class="error-message">{{ profile_form.location.errors.0 }}</div>
+          {% endif %}
+        </div>
+      </div>
+
+      <!-- Profile Photo Section -->
+      <div class="form-section">
+        <div class="section-header">
+          <i class="bi bi-camera section-icon"></i>
+          <h2 class="section-title">Profile Photo</h2>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="id_photo">Profile Picture</label>
+          <div class="photo-upload-section">
+            {% if request.user.profile.photo %}
+              <img src="{{ request.user.profile.photo.url }}" alt="Current profile photo" class="photo-preview">
+            {% else %}
+              <div class="photo-preview" style="background: var(--win11-hover); display: flex; align-items: center; justify-content: center;">
+                <i class="bi bi-person" style="font-size: 24px; color: var(--win11-text-secondary);"></i>
+              </div>
+            {% endif %}
+            <div class="photo-info">
+              {{ profile_form.photo|add_attrs:"class=form-control" }}
+              {% if profile_form.photo.errors %}
+                <div class="error-message">{{ profile_form.photo.errors.0 }}</div>
+              {% endif %}
+              <div class="help-text">Choose a clear photo of yourself. JPG, PNG or GIF. Max 5MB.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Submit Section -->
+      <div class="submit-section">
+        <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+          <a href="{% url 'dashboard' %}" class="btn-secondary" style="flex: 1; min-width: 120px;">Cancel</a>
+          <button type="submit" class="btn-primary" style="flex: 2; min-width: 160px;">
+            <i class="bi bi-check-circle" style="margin-right: 8px;"></i>
+            Save Changes
+          </button>
+        </div>
+      </div>
+    </form>
+    <!-- Form End -->
+
+  </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  // Photo preview functionality
+  const photoInput = document.getElementById('id_photo');
+  if (photoInput) {
+    photoInput.addEventListener('change', function(e) {
+      const file = e.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          const preview = document.querySelector('.photo-preview');
+          if (preview.tagName === 'IMG') {
+            preview.src = e.target.result;
+          } else {
+            preview.innerHTML = `<img src="${e.target.result}" alt="Preview" class="photo-preview" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">`;
+          }
+        };
+        reader.readAsDataURL(file);
+      }
+    });
+  }
+
+  // Form validation feedback
+  const form = document.querySelector('form');
+  const inputs = form.querySelectorAll('.form-control');
+  
+  inputs.forEach(input => {
+    input.addEventListener('blur', function() {
+      if (this.value.trim() && this.checkValidity()) {
+        this.style.borderColor = '#28a745';
+      } else if (!this.checkValidity() && this.value.trim()) {
+        this.style.borderColor = '#dc3545';
+      } else {
+        this.style.borderColor = 'var(--win11-input-border)';
+      }
+    });
+  });
+});
+</script>
+{% endblock %}
