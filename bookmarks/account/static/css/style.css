@@ -1,0 +1,85 @@
+/* General body styling */
+body {
+    background-color: #f8f9fa;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Navbar */
+.navbar {
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.nav-link {
+    font-weight: 500;
+}
+
+.nav-link:hover {
+    color: #007bff;
+}
+
+/* Container spacing */
+.container {
+    margin-top: 30px;
+}
+
+/* Cards (e.g., login box) */
+.card {
+    border-radius: 10px;
+    background-color: #ffffff;
+}
+
+.card-title {
+    font-weight: 600;
+}
+
+/* Footer */
+.footer, footer {
+    background-color: #f1f1f1;
+    padding: 20px 0;
+    text-align: center;
+    font-size: 14px;
+    border-top: 1px solid #ddd;
+    margin-top: 50px;
+}
+
+/* Optional: mimic Instagram's font for logo */
+@import url('https://fonts.googleapis.com/css2?family=Billabong&display=swap');
+
+input.form-control {
+    font-size: 14px;
+    border-radius: 3px;
+    height: 35px;
+    padding: 5px 10px;
+}
+
+
+.logout-card {
+    width: 340px;
+    background-color: #ffffff;
+    transition: transform 0.3s ease-in-out;
+}
+
+.logout-card:hover {
+    transform: scale(1.02);
+}
+
+.logout-card h1 {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-weight: 600;
+    font-size: 28px;
+}
+
+.logout-card p {
+    font-size: 14px;
+}
+
+
+.bg-white {
+  background-color: #fff;
+}
+
+.rounded-2 {
+  border-radius: 0.5rem;
+}
+
+
