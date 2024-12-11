@@ -1,0 +1,158 @@
+{% extends 'base.html' %}
+{% load thumbnail %}
+
+{% block title %} {{image.title}} {% endblock %}
+
+{% block content %}
+    <h1>{{ image.title }}</h1>
+    {{ image.description|linebreaks }}
+    <a href="{{ image.image.url }}">
+        <img src="{% thumbnail image.image 300x0 quality=100 %}"  class="image-detail">
+    </a>
+
+    {% with total_likes=image.users_like.count users_like=image.users_like.all %}
+    <div class="image-info">
+        <div class="d-flex align-items-center gap-2">
+        <span class="count">{{ total_likes }} {{ total_likes|pluralize }}</span>
+
+        <a href="#"
+            data-id="{{ image.id }}"
+            data-action="{% if request.user in users_like %}unlike{% else %}like{% endif %}"
+            data-user-id="{{ request.user.id }}"
+            data-user-name="{{ request.user.first_name|default:request.user.username }}"
+            data-user-photo="{% if request.user.profile.photo %}{{ request.user.profile.photo.url }}{% endif %}"
+            class="like-button">
+            {% if request.user in users_like %}
+            <i class="bi bi-heart-fill text-danger"></i>
+            {% else %}
+            <i class="bi bi-heart text-secondary"></i>
+            {% endif %}
+        </a>
+        </div>
+    </div>
+
+    <div class="image-likes" id="likes">
+        {% for user in users_like %}
+        <div class="d-flex align-items-center gap-2 my-1 like-item" data-user-id="{{ user.id }}">
+            {% if user.profile.photo %}
+            <img src="{{ user.profile.photo.url }}"
+                alt="{{ user.get_full_name|default:user.username }}"
+                class="rounded-circle border"
+                style="width:40px;height:40px;object-fit:cover;">
+            {% else %}
+            <div class="rounded-circle border bg-light" style="width:40px;height:40px;"></div>
+            {% endif %}
+            <p class="m-0">{{ user.first_name|default:user.username }}</p>
+        </div>
+        {% empty %}
+        <p class="text-muted m-0 empty-likes">No likes yet.</p>
+        {% endfor %}
+    </div>
+    {% endwith %}
+
+
+{% endblock %}
+{% block domready %}
+  const url = "{% url 'images:like' %}";
+  const likeButton = document.querySelector('a.like-button');
+  if (!likeButton) return;
+
+  const options = {
+    method: 'POST',
+    headers: { 'X-CSRFToken': csrftoken },
+    mode: 'same-origin'
+  };
+
+  // helpers
+  const likesBox = document.getElementById('likes');
+  const meId = likeButton.dataset.userId;
+  const meName = likeButton.dataset.userName;
+  const mePhoto = likeButton.dataset.userPhoto || null;
+
+  function ensureEmptyMsg() {
+    if (!likesBox.querySelector('.like-item') &&
+        !likesBox.querySelector('.empty-likes')) {
+      likesBox.insertAdjacentHTML(
+        'beforeend',
+        '<p class="text-muted m-0 empty-likes">No likes yet.</p>'
+      );
+    }
+  }
+
+  function addMyRow() {
+    // remove "No likes yet." if present
+    const empty = likesBox.querySelector('.empty-likes');
+    if (empty) empty.remove();
+
+    // avoid duplicates
+    if (likesBox.querySelector(`[data-user-id="${meId}"]`)) return;
+
+    const wrapper = document.createElement('div');
+    wrapper.className = 'd-flex align-items-center gap-2 my-1 like-item';
+    wrapper.dataset.userId = meId;
+
+    if (mePhoto) {
+      const img = document.createElement('img');
+      img.src = mePhoto;
+      img.alt = meName;
+      img.className = 'rounded-circle border';
+      img.style.width = '40px';
+      img.style.height = '40px';
+      img.style.objectFit = 'cover';
+      wrapper.appendChild(img);
+    } else {
+      const ph = document.createElement('div');
+      ph.className = 'rounded-circle border bg-light';
+      ph.style.width = '40px';
+      ph.style.height = '40px';
+      wrapper.appendChild(ph);
+    }
+
+    const name = document.createElement('p');
+    name.className = 'm-0';
+    name.textContent = meName;
+    wrapper.appendChild(name);
+
+    likesBox.appendChild(wrapper);
+  }
+
+  function removeMyRow() {
+    const mine = likesBox.querySelector(`[data-user-id="${meId}"]`);
+    if (mine) mine.remove();
+    ensureEmptyMsg();
+  }
+
+  likeButton.addEventListener('click', function (e) {
+    e.preventDefault();
+
+    const formData = new FormData();
+    formData.append('id', likeButton.dataset.id);
+    formData.append('action', likeButton.dataset.action);
+
+    fetch(url, { ...options, body: formData })
+      .then(r => r.json())
+      .then(data => {
+        if (data.status !== 'ok') return;
+
+        // toggle button state & icon
+        const icon = likeButton.querySelector('i');
+        if (likeButton.dataset.action === 'like') {
+          likeButton.dataset.action = 'unlike';
+          icon.classList.remove('bi-heart', 'text-secondary');
+          icon.classList.add('bi-heart-fill', 'text-danger');
+          addMyRow();               // <- add me to the list
+        } else {
+          likeButton.dataset.action = 'like';
+          icon.classList.remove('bi-heart-fill', 'text-danger');
+          icon.classList.add('bi-heart', 'text-secondary');
+          removeMyRow();            // <- remove me from the list
+        }
+
+        // update count text (pluralize in JS)
+        const countSpan = likeButton.closest('.image-info').querySelector('.count');
+        const n = Number(data.total_likes ?? 0);
+        countSpan.textContent = `${n} like${n === 1 ? '' : 's'}`;
+      })
+      .catch(console.error);
+  });
+{% endblock %}
