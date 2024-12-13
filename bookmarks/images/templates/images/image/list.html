@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% block title %}Image List{% endblock %}
+
+{% block content %}
+  <h1>Images bookmarked</h1>
+
+  {# IMPORTANT: use an id the JS can target #}
+  <div id="image-list">
+    {% include "images/image/list_images.html" %}
+  </div>
+{% endblock %}
+
+{% block domready %}
+  // current page number we’re on (starts at 1 because the first page is already rendered)
+  var page = 1;
+
+  // set to true when the server returns no more items, so we stop requesting
+  var emptyPage = false;
+
+  // prevents sending multiple requests while one is still in-flight
+  var blockRequest = false;
+
+  // listen to window scrolls to know when we're near the bottom
+  window.addEventListener('scroll', function (e) {
+    // how close we are to the bottom:
+    // total page height - viewport height - a small buffer (100px)
+    var margin = document.body.clientHeight - window.innerHeight - 100;
+
+    // if we scrolled past the margin and we can request more data
+    if (window.pageYOffset > margin && !emptyPage && !blockRequest) {
+      blockRequest = true;   // lock while the request is running
+      page += 1;             // next page
+
+      // ask the server for just the images HTML for the next page
+      fetch('?images_only=1&page=' + page)
+        .then(function (response) { return response.text(); })
+        .then(function (html) {
+          // if empty string, there are no more results
+          if (html === '') {
+            emptyPage = true;
+          } else {
+            // append returned HTML to the list
+            var imageList = document.getElementById('image-list');
+            imageList.insertAdjacentHTML('beforeend', html);
+
+            // allow another request on next scroll
+            blockRequest = false;
+          }
+        });
+    }
+  });
+
+  // trigger an initial scroll check in case content doesn't exceed the viewport
+  var scrollEvent = new Event('scroll');
+  window.dispatchEvent(scrollEvent);
+{% endblock %}
