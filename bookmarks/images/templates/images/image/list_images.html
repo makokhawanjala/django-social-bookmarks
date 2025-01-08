@@ -1,0 +1,28 @@
+{% load thumbnail %}
+
+{% for image in images %}
+  <!-- Single tile: 300x300 image + caption -->
+  <div class="image shadow-sm border rounded-2 overflow-hidden mb-3"
+       style="width:300px; display:inline-block; margin:0 12px 12px 0; vertical-align:top;">
+
+    <!-- Green bar + image -->
+    <a href="{{ image.get_absolute_url }}" class="d-block text-decoration-none">
+      <div class="bg-success" style="height:4px;"></div>
+      {% thumbnail image.image 300x300 crop="smart" as im %}
+        <img
+          src="{{ im.url }}"
+          width="{{ im.width }}"
+          height="{{ im.height }}"
+          alt="{{ image.title }}"
+          class="w-100 d-block">
+    </a>
+
+    <!-- Caption -->
+    <div class="info bg-light p-2">
+      <a href="{{ image.get_absolute_url }}"
+         class="title text-dark text-decoration-none small d-block">
+        {{ image.title }}
+      </a>
+    </div>
+  </div>
+{% endfor %}
