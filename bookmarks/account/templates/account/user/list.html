@@ -1,0 +1,129 @@
+{% extends "base.html" %}
+{% load static %}
+{% load thumbnail %}
+
+{% block title %}People{% endblock %}
+
+{% block extra_css %}
+<style>
+  /* Page-specific polish (plays nicely with your global Win11 styles) */
+  .people-search .input-group-text{ border-right:0 }
+  .people-search .form-control{ border-left:0 }
+  .people-card{
+    border:1px solid var(--win-br);
+    border-radius:14px;
+    background:#fff;
+    box-shadow: var(--bs-box-shadow);
+    transition: transform .08s ease, box-shadow .08s ease, background .08s ease;
+  }
+  .people-card:hover{ background:var(--win-hover); transform: translateY(-1px); }
+  .people-avatar,
+  .avatar-fallback{
+    width:64px; height:64px; border-radius:14px; object-fit:cover; flex:0 0 auto;
+  }
+  .avatar-fallback{
+    display:grid; place-items:center; font-weight:700; color:#fff; background:#93c5fd;
+  }
+  .people-name{ font-weight:700; margin:0 }
+  .people-username{ color:var(--win-muted); font-size:.9rem }
+</style>
+{% endblock %}
+
+{% block content %}
+  <h1 class="mb-3">People</h1>
+
+  <!-- Search/filter -->
+  <div class="people-search input-group input-group-lg mb-4">
+    <span class="input-group-text bg-white"><i class="bi bi-search"></i></span>
+    <input id="peopleSearch" type="search" class="form-control" placeholder="Search people">
+  </div>
+
+  <!-- Responsive grid -->
+  <div id="peopleGrid" class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-3">
+    {% for user in users %}
+      <div class="col" data-search-text="{{ user.get_full_name|default:user.username|lower }} {{ user.username|lower }}">
+        <div class="card people-card h-100 p-3">
+          <div class="d-flex align-items-center gap-3">
+            {% if user.profile.photo %}
+              {% thumbnail user.profile.photo "96x96" crop="center" as im %}
+                <img src="{{ im.url }}" width="{{ im.width }}" height="{{ im.height }}" alt="{{ user.get_full_name|default:user.username }} avatar" class="people-avatar">
+            {% else %}
+              <div class="avatar-fallback">
+                {{ user.get_full_name|default:user.username|first|upper }}
+              </div>
+            {% endif %}
+
+            <div class="flex-grow-1">
+              <h6 class="people-name">
+                <a class="stretched-link" href="{{ user.get_absolute_url }}">{{ user.get_full_name|default:user.username }}</a>
+              </h6>
+              <div class="people-username">@{{ user.username }}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    {% empty %}
+      <div class="col">
+        <div class="alert alert-info mb-0">No users found.</div>
+      </div>
+    {% endfor %}
+  </div>
+{% endblock %}
+
+{% block domready %}
+// Search functionality for people page
+(function() {
+  'use strict';
+  
+  function initializeSearch() {
+    const searchInput = document.getElementById('peopleSearch');
+    const grid = document.getElementById('peopleGrid');
+    
+    console.log('Initializing search...'); // Debug log
+    console.log('Search input:', searchInput); // Debug log
+    console.log('Grid:', grid); // Debug log
+    
+    if (!searchInput || !grid) {
+      console.error('Search elements not found:', { searchInput, grid });
+      return false;
+    }
+
+    const items = Array.from(grid.querySelectorAll('.col[data-search-text]'));
+    console.log('Found items:', items.length); // Debug log
+    
+    if (items.length === 0) {
+      console.warn('No searchable items found');
+      return false;
+    }
+    
+    searchInput.addEventListener('input', function() {
+      const searchTerm = this.value.trim().toLowerCase();
+      console.log('Searching for:', searchTerm); // Debug log
+      
+      let visibleCount = 0;
+      
+      items.forEach(function(item) {
+        const searchText = item.dataset.searchText || '';
+        const shouldShow = !searchTerm || searchText.includes(searchTerm);
+        
+        if (shouldShow) {
+          item.style.display = '';
+          item.classList.remove('d-none');
+          visibleCount++;
+        } else {
+          item.style.display = 'none';
+          item.classList.add('d-none');
+        }
+      });
+      
+      console.log('Visible items:', visibleCount); // Debug log
+    });
+    
+    console.log('Search functionality initialized successfully');
+    return true;
+  }
+  
+  // Initialize search functionality
+  initializeSearch();
+})();
+{% endblock %}
