@@ -1,0 +1,91 @@
+{% extends "base.html" %}{% load thumbnail %}
+{% block title %}{{ user.get_full_name|default:user.username }}{% endblock %}
+
+{% block extra_css %}
+<style>
+  :root{ --win-br: var(--win-br, #e7e7ef); --win-hover: var(--win-hover, #eef5ff); --win-muted: var(--win-muted, #6b7280); }
+  .profile-wrap{ max-width:980px; margin:0 auto; }
+  .profile-card{
+    border:1px solid var(--win-br); border-radius:14px; background:#fff;
+    box-shadow: var(--bs-box-shadow, 0 2px 10px rgba(19,24,35,.06));
+    padding:18px; margin-bottom:16px;
+  }
+  .profile-top{ display:flex; gap:18px; align-items:center; }
+  .user-detail{ width:128px; height:128px; object-fit:cover; border-radius:16px; box-shadow:0 8px 20px rgba(0,0,0,.06); }
+  .display-name{ margin:0; font-weight:800; }
+  .username{ color:var(--win-muted); margin-top:2px; }
+  .profile-actions{ margin-top:10px; display:flex; align-items:center; gap:.5rem; flex-wrap:wrap; }
+  .count{
+    display:inline-flex; align-items:center; gap:.4rem;
+    padding:6px 10px; border:1px solid var(--win-br); border-radius:999px;
+    background:#fafafa; font-weight:600;
+  }
+  .follow.button{
+    display:inline-flex; align-items:center; gap:.5rem;
+    padding:.5rem .9rem; border:1px solid #d1d5db; border-radius:999px;
+    background:#fff; font-weight:600; text-decoration:none;
+  }
+  .follow.button:hover{ background:var(--win-hover); border-color:#cbd5e1; }
+  .section-title{ margin:18px 0 10px; font-weight:700; }
+  #image-list{ border:1px solid var(--win-br); border-radius:14px; background:#fff; padding:12px; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="profile-wrap">
+  <div class="profile-card">
+    <div class="profile-top">
+      <div class="profile-info">
+        <img src="{% thumbnail user.profile.photo 180x180 %}" class="user-detail" alt="{{ user.get_full_name|default:user.username }}">
+      </div>
+      <div class="flex-grow-1">
+        <h1 class="display-name">{{ user.get_full_name|default:user.username }}</h1>
+        <div class="username">@{{ user.username }}</div>
+
+        {% with total_followers=user.followers.count %}
+          <div class="profile-actions">
+            <span class="count"><span class="total">{{ total_followers }}</span> follower{{ total_followers|pluralize }}</span>
+            <a href="#" data-id="{{ user.id }}" data-action="{% if request.user in user.followers.all %}un{% endif %}follow" class="follow button" aria-label="Follow or unfollow">
+              {% if request.user not in user.followers.all %}Follow{% else %}Unfollow{% endif %}
+            </a>
+          </div>
+        {% endwith %}
+      </div>
+    </div>
+  </div>
+
+  <h2 class="section-title">Images</h2>
+  <div id="image-list" class="image-container">
+    {% include "images/image/list_images.html" with images=user.images_created.all %}
+  </div>
+</div>
+{% endblock %}
+
+{% block domready %}
+  const url='{% url "user_follow" %}';
+  var options={method:'POST',headers:{'X-CSRFToken':csrftoken},mode:'same-origin'};
+  const btn=document.querySelector('a.follow');
+  if(btn){
+    btn.addEventListener('click',function(e){
+      e.preventDefault();
+      const followButton=this;
+      const formData=new FormData();
+      formData.append('id', followButton.dataset.id);
+      formData.append('action', followButton.dataset.action);
+      options['body']=formData;
+      fetch(url, options)
+        .then(r=>r.json())
+        .then(data=>{
+          if(data['status']==='ok'){
+            const previousAction=followButton.dataset.action;
+            const action= previousAction==='follow' ? 'unfollow' : 'follow';
+            followButton.dataset.action=action;
+            followButton.textContent= action.charAt(0).toUpperCase()+action.slice(1);
+            const followerCount=document.querySelector('span.count .total');
+            const total=parseInt(followerCount.textContent)||0;
+            followerCount.textContent= previousAction==='follow' ? total+1 : Math.max(0,total-1);
+          }
+        });
+    });
+  }
+{% endblock %}
