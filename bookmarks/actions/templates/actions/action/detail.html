@@ -1,0 +1,45 @@
+{% load thumbnail %}
+{% with user=action.user profile=action.user.profile %}
+<div class="activity-stream-item">
+    <div class="stream-avatar">
+        {% if profile.photo %}
+            {% thumbnail user.profile.photo "48x48" crop="100%" as im %}
+            <a href="{{ user.get_absolute_url }}">
+                <img src="{{ im.url }}" alt="{{ user.get_full_name }}" class="avatar-img">
+            </a>
+        {% else %}
+            <div class="avatar-placeholder">
+                <i class="bi bi-person"></i>
+            </div>
+        {% endif %}
+    </div>
+    
+    <div class="stream-content">
+        <div class="stream-text">
+            <a href="{{ user.get_absolute_url }}" class="stream-user">
+                {{ user.first_name|default:user.username }}
+            </a>
+            <span class="stream-action">{{ action.verb }}</span>
+            {% if action.target %}
+                {% with target=action.target %}
+                    <a href="{{ target.get_absolute_url }}" class="stream-target">{{ target }}</a>
+                {% endwith %}
+            {% endif %}
+        </div>
+        <div class="stream-time">{{ action.created|timesince }} ago</div>
+    </div>
+    
+    {% if action.target %}
+        {% with target=action.target %}
+            {% if target.image %}
+                <div class="stream-thumbnail">
+                    {% thumbnail target.image "64x64" crop="100%" as im %}
+                    <a href="{{ target.get_absolute_url }}">
+                        <img src="{{ im.url }}" class="thumbnail-img" alt="Bookmarked image">
+                    </a>
+                </div>
+            {% endif %}
+        {% endwith %}
+    {% endif %}
+</div>
+{% endwith %}
